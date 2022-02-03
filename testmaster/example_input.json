@@ -1,0 +1,23 @@
+{
+    "time_limit" : 15000,
+    "memory_limit" : 100,
+    "number_processes" : 4,
+    "commands" : [ 
+        "python3 dummyprograms/fibonacci.py 37",
+        "python3 dummyprograms/good_night.py 20",
+        "python3 dummyprograms/slow_increment.py 90000000",
+        "python3 dummyprograms/slow_decrement.py 80000000",
+        "python3 dummyprograms/parseable_output.py",
+        "python3 dummyprograms/parseable_output_mem.py 1000",
+        "python3 dummyprograms/exp_list.py 1000",
+        "python3 dummyprograms/fibonacci.py 20",
+        "python3 dummyprograms/good_night.py 10",
+        "python3 dummyprograms/slow_increment.py 9000000",
+        "python3 dummyprograms/slow_decrement.py 8000000",
+        "python3 dummyprograms/fibonacci.py 20",
+        "python3 dummyprograms/good_night.py 10",
+        "python3 dummyprograms/slow_increment.py 9000000",
+        "python3 dummyprograms/slow_decrement.py 8000000"
+    ],
+    "output_filename" : "output.json"
+}
