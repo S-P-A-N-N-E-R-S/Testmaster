@@ -50,7 +50,7 @@ public:
         std::ifstream graphmlFile(path);
         std::string line;
         edge currEdge;
-        std::string costFunctionStrID = "c_" + std::to_string(costFunctionIndex);
+        std::string costFunctionStrID = "weight_" + std::to_string(costFunctionIndex);
         while (std::getline(graphmlFile, line))
         {
             if (line.find("<node id=") != std::string::npos)
@@ -73,7 +73,7 @@ public:
             }
             else if (line.find(costFunctionStrID) != std::string::npos)
             {
-                std::size_t pos1 = line.find(costFunctionStrID) + 5;
+                std::size_t pos1 = line.find(costFunctionStrID) + 10;
                 std::size_t pos2 = line.find("</data");
                 if (pos2 != std::string::npos)
                 {
