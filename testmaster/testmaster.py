@@ -136,7 +136,8 @@ def parse_command_data(cmd, data):
             return json.dumps(parsed_output)
         else:
             error_dict["error"] = "Please provide all required keys in the json output."
-            return json.dumps(error_dict)
+            error_dict["output"] = output
+        return json.dumps(error_dict)
     except json.JSONDecodeError:
         error_dict["error"] = "The command output can't be parsed. Ensure that the output is formatted in json."
         return json.dumps(error_dict)
