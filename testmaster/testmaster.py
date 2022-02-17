@@ -170,7 +170,8 @@ def work(queue, output_file, time_limit, memory_limit, output_queue):
     while not queue.empty():
         task_index, cmd = queue.get()
         try:
-            proc = sp.Popen("exec " + cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE, text=True, preexec_fn=set_mem_limit)
+            commands = cmd.split()
+            proc = sp.Popen(commands, shell=False, stdout=sp.PIPE, stderr=sp.PIPE, text=True, preexec_fn=set_mem_limit)
             try:
                 # Pre function set_mem_limit limits the memory that is used for one job
                 # Since the queue items are a tuple with an index, access with indexing on [1]
@@ -184,14 +185,13 @@ def work(queue, output_file, time_limit, memory_limit, output_queue):
                 output_queue.put(create_output_str(json_output, task_index))
 
             except sp.TimeoutExpired as e:
-                json_output = json.dumps({"command": e.cmd, "error": "Time limit exceeded."})
+                json_output = json.dumps({"command": cmd, "error": "Time limit exceeded."})
                 if DEBUG:
-                    print("Test", task_index, "didn't finish.", "Timeout expired.", e.cmd)
+                    print("Test", task_index, "didn't finish.", "Timeout expired.", cmd)
                 output_queue.put(create_output_str(json_output, task_index))
 
             finally:
                 proc.kill()
-                proc.communicate()
 
         except Exception as e:
             json_output = json.dumps({"command": cmd, "error": e})
