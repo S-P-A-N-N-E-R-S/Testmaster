@@ -91,7 +91,7 @@ def check_json_keys(json_dict):
     """
     required_keys = ["command", "runtime", "weight", "actual_stretch", "graph_information"]
     required_graph_information = ["nodes", "edges", "directed", "weighted", "simple"]
-    
+
     for key in required_keys:
         if key not in json_dict:
             return False
@@ -140,6 +140,7 @@ def parse_command_data(cmd, data):
         return json.dumps(error_dict)
     except json.JSONDecodeError:
         error_dict["error"] = "The command output can't be parsed. Ensure that the output is formatted in json."
+        error_dict["output"] = output
         return json.dumps(error_dict)
 
 def create_output_str(json_output, i):
@@ -153,7 +154,7 @@ def create_output_str(json_output, i):
 
 def work(queue, output_file, time_limit, memory_limit, output_queue):
     """
-    Worker function which starts a subprocess and handles time and memory limit. 
+    Worker function which starts a subprocess and handles time and memory limit.
     Handles writing the result to the output file.
     @param queue The queue to pop new jobs from
     @param output_file A global output file where all finished jobs write to
@@ -167,29 +168,35 @@ def work(queue, output_file, time_limit, memory_limit, output_queue):
         resource.setrlimit(resource.RLIMIT_AS, (ml, resource.RLIM_INFINITY))
 
     while not queue.empty():
+        task_index, cmd = queue.get()
         try:
-            # Pre function set_mem_limit limits the memory that is used for one job
-            # Since the queue items are a tuple with an index, access with indexing on [1]
-            task_index, cmd = queue.get()
             proc = sp.Popen(cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE, text=True, preexec_fn=set_mem_limit)
-            proc.wait(timeout=time_limit/1000)  # ms to second
+            try:
+                # Pre function set_mem_limit limits the memory that is used for one job
+                # Since the queue items are a tuple with an index, access with indexing on [1]
+                proc.wait(timeout=time_limit/1000)  # ms to second
 
-            # parse command data
-            json_output = parse_command_data(cmd, proc.communicate())
+                # parse command data
+                json_output = parse_command_data(cmd, proc.communicate())
 
+                if DEBUG:
+                    print("Test", task_index, "finished.", cmd)
+                output_queue.put(create_output_str(json_output, task_index))
+
+            except sp.TimeoutExpired as e:
+                json_output = json.dumps({"command": e.cmd, "error": "Time limit exceeded."})
+                if DEBUG:
+                    print("Test", task_index, "didn't finish.", "Timeout expired.", e.cmd)
+                output_queue.put(create_output_str(json_output, task_index))
+
+            finally:
+                proc.kill()
+
+        except Exception as e:
+            json_output = json.dumps({"command": cmd, "error": e})
             if DEBUG:
-                print("Test", task_index, "finished.", cmd)
+                print("Test", task_index, "didn't finish.", "Error occurred.", cmd)
             output_queue.put(create_output_str(json_output, task_index))
-
-        except sp.TimeoutExpired as e:
-            proc.kill()
-            json_output = json.dumps({"command": e.cmd, "error": "Time limit exceeded."})
-            if DEBUG:
-                print("Test", task_index, "didn't finish.", "Timeout expired.", e.cmd)
-            output_queue.put(create_output_str(json_output, task_index))
-
-        # if DEBUG:
-        #     print(str(task_index) + ". json-output: ", json_output, "\n")
 
 
 class OutputThread(thr.Thread):
@@ -272,7 +279,7 @@ if __name__ == "__main__":
     if DEBUG:
         if number_processes > n_cpus:
             print(font.BOLD + font.RED + "Info:" + font.END + font.END, "Less CPUs are available than specified.")
-        print(font.BOLD + "Max Number of CPUs:" + font.END, n_cpus)    
+        print(font.BOLD + "Max Number of CPUs:" + font.END, n_cpus)
 
     # If less processes are wanted, set this here
     if number_processes < n_cpus:
