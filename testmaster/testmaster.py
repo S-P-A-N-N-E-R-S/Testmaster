@@ -170,7 +170,7 @@ def work(queue, output_file, time_limit, memory_limit, output_queue):
     while not queue.empty():
         task_index, cmd = queue.get()
         try:
-            proc = sp.Popen(cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE, text=True, preexec_fn=set_mem_limit)
+            proc = sp.Popen("exec " + cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE, text=True, preexec_fn=set_mem_limit)
             try:
                 # Pre function set_mem_limit limits the memory that is used for one job
                 # Since the queue items are a tuple with an index, access with indexing on [1]
