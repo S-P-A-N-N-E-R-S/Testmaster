@@ -12,7 +12,7 @@ using json = nlohmann::json;
  */
 int main(int argc, char *argv[])
 {
-    std::chrono::steady_clock::time_point abs_start, abs_stop; //To measure entire analysis time
+    std::chrono::steady_clock::time_point abs_start, abs_stop;  //To measure entire analysis time
     abs_start = std::chrono::steady_clock::now();
 
     ogdf::Graph graph;
@@ -36,7 +36,9 @@ int main(int argc, char *argv[])
     ogdf::EdgeArray<bool> dummy;
 
     std::chrono::steady_clock::time_point start, stop;
-    double max_stretch, weight_spanner;
+
+    double max_stretch = -1;
+    double weight_spanner;
 
     if (strcmp(argv[2], "euclid") == 0)
     {
@@ -45,7 +47,11 @@ int main(int argc, char *argv[])
         greedy.call(GA, stretch, spanner, dummy);
         stop = std::chrono::steady_clock::now();
         weight_spanner = weight(greedy.weights());
-        max_stretch = ogdf::SpannerPathGreedyEuclidian::maxStretch(GA, spanner, greedy.weights());
+        if (graph.numberOfNodes() <= 5000)
+        {  //Else it would take to long
+            max_stretch =
+                ogdf::SpannerPathGreedyEuclidian::maxStretch(GA, spanner, greedy.weights());
+        }
     }
     else if (strcmp(argv[2], "sphere") == 0)
     {
@@ -54,7 +60,10 @@ int main(int argc, char *argv[])
         greedy.call(GA, stretch, spanner, dummy);
         stop = std::chrono::steady_clock::now();
         weight_spanner = weight(greedy.weights());
-        max_stretch = ogdf::SpannerPathGreedySphere::maxStretch(GA, spanner, greedy.weights());
+        if (graph.numberOfNodes() <= 5000)
+        {  //Else it would take to long
+            max_stretch = ogdf::SpannerPathGreedySphere::maxStretch(GA, spanner, greedy.weights());
+        }
     }
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
 
@@ -68,7 +77,7 @@ int main(int argc, char *argv[])
     }
 
     abs_stop = std::chrono::steady_clock::now();
-    auto abs_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(abs_stop-abs_start);
+    auto abs_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(abs_stop - abs_start);
 
     json out;
     out["status"] = "Success", out["runtime"] = elapsed.count();

@@ -8,15 +8,18 @@
 using json = nlohmann::json;
 
 /**
- * Usage: First arg is stretch, second is stretch of first yao, following like in yao_spanner
+ * Usage: First arg is stretch, second is stretch of first yao, following like
+ * in yao_spanner
  */
 int main(int argc, char *argv[])
 {
-    std::chrono::steady_clock::time_point abs_start, abs_stop; //To measure entire analysis time
+    std::chrono::steady_clock::time_point abs_start,
+        abs_stop;  // To measure entire analysis time
     abs_start = std::chrono::steady_clock::now();
-    
+
     ogdf::Graph graph;
-    ogdf::GraphAttributes GA(graph, ogdf::GraphAttributes::nodeGraphics | ogdf::GraphAttributes::edgeDoubleWeight);
+    ogdf::GraphAttributes GA(
+        graph, ogdf::GraphAttributes::nodeGraphics | ogdf::GraphAttributes::edgeDoubleWeight);
     if (argc < 3)
     {
         exitError("Not enough args!");
@@ -48,7 +51,8 @@ int main(int argc, char *argv[])
 
         for (ogdf::edge e : spanner.edges)
         {
-            ogdf::edge new_e = graph.newEdge(spanner.original(e->source()), spanner.original(e->target()));
+            ogdf::edge new_e =
+                graph.newEdge(spanner.original(e->source()), spanner.original(e->target()));
             GA.doubleWeight(new_e) = yao.weights()[e];
         }
     }
@@ -60,7 +64,8 @@ int main(int argc, char *argv[])
 
         for (ogdf::edge e : spanner.edges)
         {
-            ogdf::edge new_e = graph.newEdge(spanner.original(e->source()), spanner.original(e->target()));
+            ogdf::edge new_e =
+                graph.newEdge(spanner.original(e->source()), spanner.original(e->target()));
             GA.doubleWeight(new_e) = yao.weights()[e];
         }
     }
@@ -80,14 +85,17 @@ int main(int argc, char *argv[])
     {
         weights[e] = GA.doubleWeight(spanner.original(e));
     }
-    double max_stretch;
-    if (strcmp(argv[3], "euclid") == 0)
-    {
-        max_stretch = ogdf::SpannerYaoGraphEuclidian::maxStretch(GA, spanner, weights);
-    }
-    else if (strcmp(argv[3], "sphere") == 0)
-    {
-        max_stretch = ogdf::SpannerYaoGraphSphere::maxStretch(GA, spanner, weights);
+    double max_stretch = -1;
+    if (graph.numberOfNodes() <= 5000)
+    {  //Else it would take to long
+        if (strcmp(argv[3], "euclid") == 0)
+        {
+            max_stretch = ogdf::SpannerYaoGraphEuclidian::maxStretch(GA, spanner, weights);
+        }
+        else if (strcmp(argv[3], "sphere") == 0)
+        {
+            max_stretch = ogdf::SpannerYaoGraphSphere::maxStretch(GA, spanner, weights);
+        }
     }
     double weight_spanner = weight(weights);
 
@@ -101,7 +109,7 @@ int main(int argc, char *argv[])
     }
 
     abs_stop = std::chrono::steady_clock::now();
-    auto abs_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(abs_stop-abs_start);
+    auto abs_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(abs_stop - abs_start);
 
     json out;
     out["status"] = "Success", out["runtime"] = elapsed.count();

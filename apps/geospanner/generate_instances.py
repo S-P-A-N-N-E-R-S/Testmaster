@@ -16,7 +16,7 @@ input["output_filename"] = sys.argv[2]
 
 prefix = "./build/apps/geospanner/"
 
-no_nodes = [100, 1000] #, 5000, 10000, 150000, 20000]
+no_nodes = [100, 1000, 5000, 10000, 150000, 20000]
 no_instances = 2
 
 metrics = ["euclid", "sphere"]

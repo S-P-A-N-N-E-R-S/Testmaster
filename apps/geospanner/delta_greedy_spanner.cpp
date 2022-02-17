@@ -12,11 +12,12 @@ using json = nlohmann::json;
  */
 int main(int argc, char *argv[])
 {
-    std::chrono::steady_clock::time_point abs_start, abs_stop; //To measure entire analysis time
+    std::chrono::steady_clock::time_point abs_start, abs_stop;  //To measure entire analysis time
     abs_start = std::chrono::steady_clock::now();
 
     ogdf::Graph graph;
-    ogdf::GraphAttributes GA(graph, ogdf::GraphAttributes::nodeGraphics | ogdf::GraphAttributes::edgeDoubleWeight);
+    ogdf::GraphAttributes GA(
+        graph, ogdf::GraphAttributes::nodeGraphics | ogdf::GraphAttributes::edgeDoubleWeight);
     if (argc < 3)
     {
         exitError("Not enough args!");
@@ -38,7 +39,8 @@ int main(int argc, char *argv[])
     ogdf::GraphCopySimple spanner(graph);
     ogdf::EdgeArray<bool> dummy;
 
-    double max_stretch, weight_spanner;
+    double max_stretch = -1;
+    double weight_spanner;
 
     std::chrono::steady_clock::time_point start, stop;
 
@@ -51,7 +53,11 @@ int main(int argc, char *argv[])
         delta_greedy.call(GA, stretch, spanner, dummy);
 
         stop = std::chrono::steady_clock::now();
-        max_stretch = ogdf::SpannerDeltaGreedyEuclidian::maxStretch(GA, spanner, delta_greedy.weights());
+        if (graph.numberOfNodes() <= 5000)
+        {  //Else it would take to long
+            max_stretch =
+                ogdf::SpannerDeltaGreedyEuclidian::maxStretch(GA, spanner, delta_greedy.weights());
+        }
         weight_spanner = weight(delta_greedy.weights());
     }
     else if (strcmp(argv[3], "sphere") == 0)
@@ -61,7 +67,11 @@ int main(int argc, char *argv[])
         delta_greedy.setDelta(delta);
         delta_greedy.call(GA, stretch, spanner, dummy);
         stop = std::chrono::steady_clock::now();
-        max_stretch = ogdf::SpannerDeltaGreedySphere::maxStretch(GA, spanner, delta_greedy.weights());
+        if (graph.numberOfNodes() <= 5000)
+        {  //Else it would take to long
+            max_stretch =
+                ogdf::SpannerDeltaGreedySphere::maxStretch(GA, spanner, delta_greedy.weights());
+        }
         weight_spanner = weight(delta_greedy.weights());
     }
 
@@ -77,7 +87,7 @@ int main(int argc, char *argv[])
     }
 
     abs_stop = std::chrono::steady_clock::now();
-    auto abs_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(abs_stop-abs_start);
+    auto abs_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(abs_stop - abs_start);
 
     json out;
     out["status"] = "Success", out["runtime"] = elapsed.count();
