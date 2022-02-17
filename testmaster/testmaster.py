@@ -191,6 +191,7 @@ def work(queue, output_file, time_limit, memory_limit, output_queue):
 
             finally:
                 proc.kill()
+                proc.communicate()
 
         except Exception as e:
             json_output = json.dumps({"command": cmd, "error": e})
