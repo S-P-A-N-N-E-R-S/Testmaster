@@ -113,7 +113,6 @@ void buildInstance(int argc, char *argv[], int start_index, ogdf::Graph &graph,
         {
             seed = std::stoi(argv[start_index + 2]);
             n = std::stoi(argv[start_index + 3]);
-        std::cout << seed << " " << n << "\n";
         }
         catch (...)
         {

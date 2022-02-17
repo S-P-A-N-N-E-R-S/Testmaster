@@ -12,6 +12,9 @@ using json = nlohmann::json;
  */
 int main(int argc, char *argv[])
 {
+    std::chrono::steady_clock::time_point abs_start, abs_stop; //To measure entire analysis time
+    abs_start = std::chrono::steady_clock::now();
+    
     ogdf::Graph graph;
     ogdf::GraphAttributes GA(graph, ogdf::GraphAttributes::nodeGraphics | ogdf::GraphAttributes::edgeDoubleWeight);
     if (argc < 2)
@@ -97,12 +100,16 @@ int main(int argc, char *argv[])
         command << " " << argv[i];
     }
 
+    abs_stop = std::chrono::steady_clock::now();
+    auto abs_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(abs_stop-abs_start);
+
     json out;
     out["status"] = "Success", out["runtime"] = elapsed.count();
     out["weight"] = weight_spanner;
     out["actual_stretch"] = max_stretch;
     json add_info;
     add_info["stretch_greedy"] = stretch_greedy;
+    add_info["absolute_time"] = abs_elapsed.count();
     out["additional_info"] = add_info;
     json graph_info;
     graph_info["nodes"] = spanner.numberOfNodes();
