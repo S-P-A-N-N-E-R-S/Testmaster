@@ -152,7 +152,7 @@ def create_output_str(json_output, i):
     return ',\n' + '"Test' + str(i) + '" : ' + json_output
 
 
-def work(queue, output_file, time_limit, memory_limit, output_queue):
+def work(queue, lock, time_limit, memory_limit, output_queue):
     """
     Worker function which starts a subprocess and handles time and memory limit.
     Handles writing the result to the output file.
@@ -167,8 +167,15 @@ def work(queue, output_file, time_limit, memory_limit, output_queue):
         ml = memory_limit * 1000000
         resource.setrlimit(resource.RLIMIT_AS, (ml, resource.RLIM_INFINITY))
 
-    while not queue.empty():
+    while True:
+
+        lock.acquire()
+        if queue.empty():
+            lock.release()
+            break
         task_index, cmd = queue.get()
+        lock.release()
+
         try:
             commands = cmd.split()
             proc = sp.Popen(commands, shell=False, stdout=sp.PIPE, stderr=sp.PIPE, text=True, preexec_fn=set_mem_limit)
@@ -232,7 +239,7 @@ class OutputThread(thr.Thread):
 
             sleep(1)
             # if DEBUG:
-            #     print("daemon still running!")
+            print("daemon still running!")
 
 
 if __name__ == "__main__":
@@ -312,8 +319,9 @@ if __name__ == "__main__":
         for i, cmd in enumerate(commands):
             proc_queue.put((i, cmd))
         active_processes = []
+        lock = mp.Lock()
         for proc in range(number_processes):
-            active_processes.append(thr.Thread(target=work, args=(proc_queue, output_filename, time_limit, memory_limit, output_queue)))
+            active_processes.append(thr.Thread(target=work, args=(proc_queue, lock, time_limit, memory_limit, output_queue)))
             active_processes[proc].start()
         # Wait for the processes/threads to finish
         for proc in active_processes:
