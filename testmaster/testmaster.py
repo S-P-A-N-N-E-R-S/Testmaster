@@ -239,7 +239,7 @@ class OutputThread(thr.Thread):
 
             sleep(1)
             # if DEBUG:
-            print("daemon still running!")
+            #     print("daemon still running!")
 
 
 if __name__ == "__main__":
