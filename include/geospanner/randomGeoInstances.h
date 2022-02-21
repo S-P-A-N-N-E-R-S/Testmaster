@@ -29,10 +29,8 @@ void clusteredEuclidian(ogdf::Graph &graph, ogdf::GraphAttributes &GA, int seed,
     std::uniform_real_distribution<> rand_y(0.0, max_y);
     std::uniform_real_distribution<> angle(-M_PI, M_PI);
     std::exponential_distribution<> distance(1 / mean_dist);
-
     for (int i = 0; i < n_cluster; i++)
     {
-        auto center = graph.newNode();
         double x_center = rand_x(gen);
         double y_center = rand_y(gen);
         for (int j = 0; j < n_points_per_cluster; j++)
