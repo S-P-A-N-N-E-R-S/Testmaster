@@ -1,3 +1,6 @@
+# Authors: Dennis Benz, Levin Nemesch, Jo Sandor
+# Version 1, 2022
+
 import multiprocessing as mp
 import resource
 import subprocess as sp
