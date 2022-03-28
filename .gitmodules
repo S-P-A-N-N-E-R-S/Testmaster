@@ -1,3 +1,0 @@
-[submodule "ogdf"]
-	path = ogdf
-	url = git@gitpgtcs.informatik.uni-osnabrueck.de:spanners/ogdf.git
