@@ -1,6 +1,9 @@
-# experiments
+# Testmaster - an application for automated testing
 
-The repo for our experiments on the server. The ogdf will be a submodule and on the server linked to the Cplex ilp solver.
+This application can schedule and run many programs (e.g. from terminal) at once while controlling memory and time limits for each iteration and is thus useful for usages such as algorithm engineering for scheduling longer experiments on many instances.
+
+### Disclaimer
+The json-parser is written to suit the experiments done by the S.P.A.N.N.E.R.S. project group and therefore produces a useful output file on specific program outputs for now. For general usage, some tweakments are required, especially in the `parse_command_data`, `check_json_keys`, etc functions. Other than that the parallel processing works on various programs.
 
 ### Testmaster usage 
 
